@@ -68,6 +68,9 @@ const char id[]="@(#) version: " STR(VERSMAJ) "." STR(VERSMID) "." STR(VERSMIN) 
 #define DEFAULT_OPTIONS "allow_other,default_permissions"
 #endif
 
+#define MINCACHESIZE		16		// 16M
+#define MAXCACHESIZE		16384	// 16G
+#define DEFAULTCACHESIZE	2048	// 2G
 static void mfs_fsinit (void *userdata, struct fuse_conn_info *conn);
 
 static struct fuse_lowlevel_ops mfs_meta_oper = {
@@ -978,15 +981,15 @@ int main(int argc, char *argv[]) {
 		mfsopts.nofile=100000;
 	}
 	if (mfsopts.writecachesize==0) {
-		mfsopts.writecachesize=128;
+		mfsopts.writecachesize=DEFAULTCACHESIZE;
 	}
-	if (mfsopts.writecachesize<16) {
-		fprintf(stderr,"write cache size to low (%u MiB) - increased to 16 MiB\n",mfsopts.writecachesize);
-		mfsopts.writecachesize=16;
+	if (mfsopts.writecachesize<MINCACHESIZE) {
+		fprintf(stderr,"write cache size to low (%u MiB) - increased to %d MiB\n",mfsopts.writecachesize, MINCACHESIZE);
+		mfsopts.writecachesize=MINCACHESIZE;
 	}
-	if (mfsopts.writecachesize>2048) {
-		fprintf(stderr,"write cache size to big (%u MiB) - decresed to 2048 MiB\n",mfsopts.writecachesize);
-		mfsopts.writecachesize=2048;
+	if (mfsopts.writecachesize>MAXCACHESIZE) {
+		fprintf(stderr,"write cache size to big (%u MiB) - decresed to %d MiB\n",mfsopts.writecachesize, MAXCACHESIZE);
+		mfsopts.writecachesize=MAXCACHESIZE;
 	}
 
 	if (mfsopts.nostdmountoptions==0) {
